@@ -42,7 +42,7 @@ resource "aws_subnet" "sharepass-subnet-1a" {
 resource "aws_subnet" "sharepass-subnet-1b" {
   vpc_id            = aws_vpc.sharepass-vpc.id
   cidr_block        = "10.0.13.0/24"
-  availability_zone = "us-east-1a"
+  availability_zone = "us-east-1b"
 
   tags = "${merge(tomap({Name="${var.application}-subnet-1a"}), var.tags)}"
 }
@@ -157,18 +157,7 @@ resource "aws_vpc_endpoint" "apigw-endpoint" {
 resource "aws_vpc_endpoint" "dyndb-endpoint" {
   vpc_id            = aws_vpc.sharepass-vpc.id
   service_name      = "com.amazonaws.${data.aws_region.current.name}.dynamodb"
-  vpc_endpoint_type = "Interface"
-  subnet_ids        = [
-    aws_subnet.sharepass-subnet-1a.id,
-    aws_subnet.sharepass-subnet-1b.id,
-    ]
-
-  security_group_ids = [
-    aws_security_group.sharepass-allow-tls.id,
-  ]
-
-  private_dns_enabled = true
-
+  vpc_endpoint_type = "Gateway"
   tags = "${merge(tomap({Name="${var.application}-dyndb-vpc-endpoint"}), var.tags)}"
 }
 
@@ -205,4 +194,9 @@ resource "aws_ec2_client_vpn_endpoint" "sharepass-vpn" {
 resource "aws_ec2_client_vpn_network_association" "sharepass-private" {
   client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.sharepass-vpn.id
   subnet_id              = aws_subnet.sharepass-subnet-1a.id
+}
+
+resource "aws_vpc_endpoint_route_table_association" "private-dynamodb" {
+  vpc_endpoint_id = "${aws_vpc_endpoint.dyndb-endpoint.id}"
+  route_table_id  = "${aws_vpc.sharepass-vpc.main_route_table_id}"
 }
