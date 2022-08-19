@@ -131,6 +131,7 @@ curl -X POST -H "Content-Type: application/json" -d '{"Id": "07e421d1-a8e7-41f1-
 - Build client to encrypt / decrypt secrets (cli & webapp) 
 - finalize documentation 
 - review security of overall solution
+- Consider additional crypto for storing secrets - perhaps KMS + SecretsMan? 
 
 ## Hints & Findings 
 - R53 resolver resource apparently needs AT LEAST 2 subnets... 
